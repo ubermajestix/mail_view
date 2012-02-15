@@ -33,7 +33,8 @@ class MailView
     elsif path_info =~ /([\w_]+)(\.\w+)?$/
       name   = $1
       format = $2 || ".html"
-
+      parse_params(env)
+      
       if actions.include?(name)
         ok render_mail(name, send(name), format)
       else
@@ -43,6 +44,18 @@ class MailView
       not_found(true)
     end
   end
+  
+  def logger
+    Logger.new($stdout)
+  end
+  
+  def parse_params(env)
+    query = env['QUERY_STRING']
+    @params = {}
+    query.split("&").each{|q| q.match(/(.+)=(.+)/); @params[$1.to_sym] = $2}
+  end
+  
+  attr_reader :params
 
   protected
     def actions
